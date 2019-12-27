@@ -1,13 +1,11 @@
 use std::io::{BufRead, Write};
 
-use quick_xml::events::attributes::Attributes;
 use quick_xml::events::{BytesEnd, BytesStart, Event};
 use quick_xml::Error as XmlError;
 use quick_xml::Reader;
 use quick_xml::Writer;
 
 use crate::error::Error;
-use crate::fromxml::FromXml;
 use crate::toxml::{ToXmlNamed, WriterExt};
 use crate::util::atom_text;
 
@@ -120,10 +118,9 @@ impl Person {
     {
         self.uri = uri.into()
     }
-}
 
-impl FromXml for Person {
-    fn from_xml<B: BufRead>(reader: &mut Reader<B>, _: Attributes) -> Result<Self, Error> {
+    /// Build a Person from source XML.
+    pub fn from_xml<B: BufRead>(reader: &mut Reader<B>) -> Result<Self, Error> {
         let mut person = Person::default();
         let mut buf = Vec::new();
 

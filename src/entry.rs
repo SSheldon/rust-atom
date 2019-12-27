@@ -1,6 +1,5 @@
 use std::io::{BufRead, Write};
 
-use quick_xml::events::attributes::Attributes;
 use quick_xml::events::{BytesEnd, BytesStart, Event};
 use quick_xml::Error as XmlError;
 use quick_xml::Reader;
@@ -11,7 +10,6 @@ use crate::content::Content;
 use crate::error::Error;
 use crate::extension::util::{extension_name, parse_extension};
 use crate::extension::ExtensionMap;
-use crate::fromxml::FromXml;
 use crate::link::Link;
 use crate::person::Person;
 use crate::source::Source;
@@ -491,10 +489,9 @@ impl Entry {
     {
         self.extensions = extensions.into()
     }
-}
 
-impl FromXml for Entry {
-    fn from_xml<B: BufRead>(reader: &mut Reader<B>, _: Attributes) -> Result<Self, Error> {
+    /// Build an Entry from source XML.
+    pub fn from_xml<B: BufRead>(reader: &mut Reader<B>) -> Result<Self, Error> {
         let mut entry = Entry::default();
         let mut buf = Vec::new();
 
@@ -509,20 +506,20 @@ impl FromXml for Entry {
                     }
                     b"author" => entry
                         .authors
-                        .push(Person::from_xml(reader, element.attributes())?),
+                        .push(Person::from_xml(reader)?),
                     b"category" => entry
                         .categories
                         .push(Category::from_xml(reader, element.attributes())?),
                     b"contributor" => entry
                         .contributors
-                        .push(Person::from_xml(reader, element.attributes())?),
+                        .push(Person::from_xml(reader)?),
                     b"link" => entry
                         .links
                         .push(Link::from_xml(reader, element.attributes())?),
                     b"published" => entry.published = atom_datetime(reader)?,
                     b"rights" => entry.rights = atom_text(reader)?,
                     b"source" => {
-                        entry.source = Some(Source::from_xml(reader, element.attributes())?)
+                        entry.source = Some(Source::from_xml(reader)?)
                     }
                     b"summary" => entry.summary = atom_text(reader)?,
                     b"content" => {

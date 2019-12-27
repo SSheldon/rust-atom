@@ -7,7 +7,6 @@ use quick_xml::Reader;
 use quick_xml::Writer;
 
 use crate::error::Error;
-use crate::fromxml::FromXml;
 use crate::toxml::ToXml;
 
 /// Represents a link in an Atom feed
@@ -234,10 +233,9 @@ impl Link {
     {
         self.length = length.into()
     }
-}
 
-impl FromXml for Link {
-    fn from_xml<B: BufRead>(reader: &mut Reader<B>, mut atts: Attributes) -> Result<Self, Error> {
+    /// Build a Link from source XML.
+    pub fn from_xml<B: BufRead>(reader: &mut Reader<B>, mut atts: Attributes) -> Result<Self, Error> {
         let mut link = Link::default();
 
         for attr in atts.with_checks(false) {

@@ -7,7 +7,6 @@ use quick_xml::Reader;
 use quick_xml::Writer;
 
 use crate::error::Error;
-use crate::fromxml::FromXml;
 use crate::toxml::ToXml;
 use crate::util::atom_text;
 
@@ -121,10 +120,9 @@ impl Generator {
     {
         self.version = version.into()
     }
-}
 
-impl FromXml for Generator {
-    fn from_xml<B: BufRead>(reader: &mut Reader<B>, mut atts: Attributes) -> Result<Self, Error> {
+    /// Build a Generator from source XML.
+    pub fn from_xml<B: BufRead>(reader: &mut Reader<B>, mut atts: Attributes) -> Result<Self, Error> {
         let mut generator = Generator::default();
 
         for attr in atts.with_checks(false) {

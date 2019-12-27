@@ -1,6 +1,5 @@
 use std::io::{BufRead, Write};
 
-use quick_xml::events::attributes::Attributes;
 use quick_xml::events::{BytesEnd, BytesStart, Event};
 use quick_xml::Error as XmlError;
 use quick_xml::Reader;
@@ -8,7 +7,6 @@ use quick_xml::Writer;
 
 use crate::category::Category;
 use crate::error::Error;
-use crate::fromxml::FromXml;
 use crate::generator::Generator;
 use crate::link::Link;
 use crate::person::Person;
@@ -434,10 +432,9 @@ impl Source {
     {
         self.subtitle = subtitle.into()
     }
-}
 
-impl FromXml for Source {
-    fn from_xml<B: BufRead>(reader: &mut Reader<B>, _: Attributes) -> Result<Self, Error> {
+    /// Build a Source from source XML.
+    pub fn from_xml<B: BufRead>(reader: &mut Reader<B>) -> Result<Self, Error> {
         let mut source = Source::default();
         let mut buf = Vec::new();
 
@@ -452,13 +449,13 @@ impl FromXml for Source {
                     }
                     b"author" => source
                         .authors
-                        .push(Person::from_xml(reader, element.attributes())?),
+                        .push(Person::from_xml(reader)?),
                     b"category" => source
                         .categories
                         .push(Category::from_xml(reader, element.attributes())?),
                     b"contributor" => source
                         .contributors
-                        .push(Person::from_xml(reader, element.attributes())?),
+                        .push(Person::from_xml(reader)?),
                     b"generator" => {
                         source.generator = Some(Generator::from_xml(reader, element.attributes())?)
                     }

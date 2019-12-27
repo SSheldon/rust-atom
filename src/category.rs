@@ -7,7 +7,6 @@ use quick_xml::Reader;
 use quick_xml::Writer;
 
 use crate::error::Error;
-use crate::fromxml::FromXml;
 use crate::toxml::ToXml;
 
 /// Represents a category in an Atom feed
@@ -120,10 +119,9 @@ impl Category {
     {
         self.label = label.into();
     }
-}
 
-impl FromXml for Category {
-    fn from_xml<B: BufRead>(reader: &mut Reader<B>, mut atts: Attributes) -> Result<Self, Error> {
+    /// Build a Category from source XML.
+    pub fn from_xml<B: BufRead>(reader: &mut Reader<B>, mut atts: Attributes) -> Result<Self, Error> {
         let mut category = Category::default();
 
         for attr in atts.with_checks(false) {

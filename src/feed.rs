@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use std::io::{BufRead, Write};
 use std::str::{self, FromStr};
 
-use quick_xml::events::attributes::Attributes;
 use quick_xml::events::{BytesEnd, BytesStart, Event};
 use quick_xml::Error as XmlError;
 use quick_xml::Reader;
@@ -13,7 +12,6 @@ use crate::entry::Entry;
 use crate::error::Error;
 use crate::extension::util::{extension_name, parse_extension};
 use crate::extension::ExtensionMap;
-use crate::fromxml::FromXml;
 use crate::generator::Generator;
 use crate::link::Link;
 use crate::person::Person;
@@ -80,7 +78,7 @@ impl Feed {
             match reader.read_event(&mut buf)? {
                 Event::Start(element) => {
                     if element.name() == b"feed" {
-                        let mut feed = Feed::from_xml(&mut reader, element.attributes())?;
+                        let mut feed = Feed::from_xml(&mut reader)?;
 
                         for attr in element.attributes().with_checks(false) {
                             if let Ok(attr) = attr {
@@ -632,10 +630,9 @@ impl Feed {
     {
         self.namespaces = namespaces.into()
     }
-}
 
-impl FromXml for Feed {
-    fn from_xml<B: BufRead>(reader: &mut Reader<B>, _: Attributes) -> Result<Self, Error> {
+    /// Build a Feed from source XML.
+    pub fn from_xml<B: BufRead>(reader: &mut Reader<B>) -> Result<Self, Error> {
         let mut feed = Feed::default();
         let mut buf = Vec::new();
 
@@ -652,13 +649,13 @@ impl FromXml for Feed {
                     }
                     b"author" => feed
                         .authors
-                        .push(Person::from_xml(reader, element.attributes())?),
+                        .push(Person::from_xml(reader)?),
                     b"category" => feed
                         .categories
                         .push(Category::from_xml(reader, element.attributes())?),
                     b"contributor" => feed
                         .contributors
-                        .push(Person::from_xml(reader, element.attributes())?),
+                        .push(Person::from_xml(reader)?),
                     b"generator" => {
                         feed.generator = Some(Generator::from_xml(reader, element.attributes())?)
                     }
@@ -671,7 +668,7 @@ impl FromXml for Feed {
                     b"subtitle" => feed.subtitle = atom_text(reader)?,
                     b"entry" => feed
                         .entries
-                        .push(Entry::from_xml(reader, element.attributes())?),
+                        .push(Entry::from_xml(reader)?),
                     n => {
                         if let Some((ns, name)) = extension_name(element.name()) {
                             parse_extension(

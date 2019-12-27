@@ -68,7 +68,6 @@ mod person;
 mod source;
 
 mod error;
-mod fromxml;
 mod toxml;
 mod util;
 
