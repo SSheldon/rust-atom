@@ -17,11 +17,11 @@ use crate::util::atom_any_text;
 #[builder(setter(into), default)]
 pub struct Content {
     /// The text value of the content.
-    value: Option<String>,
+    pub value: Option<String>,
     /// The URI of where the content can be found.
-    src: Option<String>,
+    pub src: Option<String>,
     /// Either "text", "html", "xhtml", or the MIME type of the content.
-    content_type: Option<String>,
+    pub content_type: Option<String>,
 }
 
 impl Content {
